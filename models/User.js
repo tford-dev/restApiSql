@@ -2,6 +2,8 @@
 const { Model, DataTypes } = require("sequelize");
 const bcrypt = require("bcrypt");
 
+//Schema for User table
+//Most validation for User data in held within this file
 module.exports = (sequelize) => {
     class User extends Model {}
     User.init({
@@ -51,6 +53,7 @@ module.exports = (sequelize) => {
         },
     }, {sequelize});
 
+    //Data association with Course table
     User.associate = (models) => {
         User.hasMany(models.Course, {
             as: 'student',

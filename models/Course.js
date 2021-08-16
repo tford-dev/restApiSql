@@ -1,5 +1,6 @@
 const {Model, DataTypes} = require("sequelize");
 
+//Schema for Course table
 module.exports = (sequelize) => {
     class Course extends Model {};
     Course.init({
@@ -28,6 +29,7 @@ module.exports = (sequelize) => {
         
     }, {sequelize});
 
+    //Data association with student model
     Course.associate = (models) => {
         Course.belongsTo(models.User, {
             as: "student",

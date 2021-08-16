@@ -48,6 +48,7 @@ app.use((err, req, res, next) => {
 // set our port
 app.set('port', process.env.PORT || 5000);
 
+//Async function to connect database to express
 (async () => {
   try {
     await sequelize.authenticate();
