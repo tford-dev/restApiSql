@@ -89,6 +89,7 @@ router.get("/courses/:id", asyncHandler(async(req, res) => {
     );
 
     if(course){
+      //JSON that displays course data that filters out 'createdAt' and 'updatedAt'
       res.json({ 
         id: course.id,
         title: course.title,
