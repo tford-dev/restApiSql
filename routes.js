@@ -1,9 +1,9 @@
 "use strict";
 
 const express = require("express");
-const {asyncHandler} = require("./asyncHandler");
-const { User, Course } = require('../models');
-const {authenticateUser} = require("./authUser");
+const {asyncHandler} = require("./middleware/asyncHandler");
+const { User, Course } = require('./models');
+const {authenticateUser} = require("./middleware/authUser");
 const bcrypt = require("bcrypt");
 const router = express.Router();
 
