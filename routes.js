@@ -24,14 +24,14 @@ router.post('/users', asyncHandler(async (req, res) => {
   try {
     const salt =  await bcrypt.genSalt()
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
-    
+
     //swapped password for hashedPassword so user-password isn't saved as plain text in database
     const user = {firstName: req.body.firstName, lastName: req.body.lastName, emailAddress: req.body.emailAddress, password: hashedPassword};
-
-    await User.create(user);
+    await User.create(user).then(console.log(`New user '${req.body.emailAddress}' successfully created.`));
 
     //sets location header to "/"
     res.location('/');
+
     res.status(201).end();
     //removed code below because project required no content on this post request.
     //.json({ "message": "Account successfully created." });
@@ -40,7 +40,8 @@ router.post('/users', asyncHandler(async (req, res) => {
       const errors = error.errors.map(err => err.message);
       res.status(400).json({ errors });   
     } else {
-      throw error;
+      //Generic "error" message for any issues that might come from creating user
+      res.status(400).json({message : "Please make sure valid data is provided to create user."})  
     }
   }
 }));
@@ -57,19 +58,21 @@ router.get("/courses", asyncHandler(async(req, res) => {
         }
       ]
     });
-
     //Loops through course data to filter out 'createdAt' and 'updatedAt' when displaying courses
-    courses.map(course =>{
-      res.json({ 
-        id: course.id,
-        title: course.title,
-        description: course.description,
-        estimatedTime: course.estimatedTime,
-        materialsNeeded: course.materialsNeeded,
-        student: course.student.firstName + " " + course.student.lastName
+    if(courses){
+      courses.map(course =>{
+        res.json({ 
+          id: course.id,
+          title: course.title,
+          description: course.description,
+          estimatedTime: course.estimatedTime,
+          materialsNeeded: course.materialsNeeded,
+          userId: course.student
+        }).status(200).end();
       });
-    });
-    res.status(200).end();
+    } else {
+      throw error;
+    }
   } catch(error){
     throw error;
   }
@@ -96,8 +99,7 @@ router.get("/courses/:id", asyncHandler(async(req, res) => {
         description: course.description,
         estimatedTime: course.estimatedTime,
         materialsNeeded: course.materialsNeeded,
-        userId: course.userId,
-        student: course.student.firstName + " " + course.student.lastName
+        userId: course.student,
       });
     }
   } catch(error){
@@ -112,9 +114,7 @@ router.post("/courses", authenticateUser, asyncHandler(async(req, res) => {
 
     //Sets location header to specific course id
     res.location(`/course/${Course.id}`);
-    res.status(201).json({
-      "message": "New course successfully created."
-    });
+    res.status(201).end();
   } catch(error){
     if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
       const errors = error.errors.map(err => err.message);
