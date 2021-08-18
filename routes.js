@@ -120,11 +120,15 @@ router.get("/courses/:id", asyncHandler(async(req, res) => {
 //POST route to create a course
 router.post("/courses", authenticateUser, asyncHandler(async(req, res) => {
   try{
-    await Course.create(req.body);
+    if(req.body.title.length > 0 && req.body.description.length > 0){
+      await Course.create(req.body);
 
-    //Sets location header to specific course id
-    res.location(`/course/${Course.id}`);
-    res.status(201).end(console.log("New course successfully created"));
+      //Sets location header to specific course id
+      res.location(`/course/${Course.id}`);
+      res.status(201).end(console.log("New course successfully created")).end();
+    } else {
+      res.status(400).json({message: "Title and description can not be empty!"}).end();
+    }
   } catch(error){
     if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
       const errors = error.errors.map(err => err.message);
