@@ -104,7 +104,8 @@ router.get("/courses/:id", asyncHandler(async(req, res) => {
         description: course.description,
         estimatedTime: course.estimatedTime,
         materialsNeeded: course.materialsNeeded,
-        userId: course.student,
+        userId: course.userId,
+        student: course.student
       });
     }
   } catch(error){
