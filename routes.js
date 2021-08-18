@@ -26,15 +26,19 @@ router.post('/users', asyncHandler(async (req, res) => {
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
     //swapped password for hashedPassword so user-password isn't saved as plain text in database
-    const user = {firstName: req.body.firstName, lastName: req.body.lastName, emailAddress: req.body.emailAddress, password: hashedPassword};
-    await User.create(user).then(console.log(`New user '${req.body.emailAddress}' successfully created.`));
+    if(req.body.password.length >= 8 && req.body.password.length <= 20){
+      const user = {firstName: req.body.firstName, lastName: req.body.lastName, emailAddress: req.body.emailAddress, password: hashedPassword};
+      await User.create(user);
 
-    //sets location header to "/"
-    res.location('/');
+      //sets location header to "/"
+      res.location('/');
+      //removed code below because project required no content on this post request.
+      //.json({ "message": "Account successfully created." });
+      res.status(201).end(console.log(`New user '${req.body.emailAddress}' successfully created.`));
+    } else {
+      res.status(400).json({message: "Error, password must be 8-20 characters."}).end()
+    }
 
-    res.status(201).end();
-    //removed code below because project required no content on this post request.
-    //.json({ "message": "Account successfully created." });
   } catch (error) {
     if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
       const errors = error.errors.map(err => err.message);
@@ -120,7 +124,7 @@ router.post("/courses", authenticateUser, asyncHandler(async(req, res) => {
 
     //Sets location header to specific course id
     res.location(`/course/${Course.id}`);
-    res.status(201).end();
+    res.status(201).end(console.log("New course successfully created"));
   } catch(error){
     if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
       const errors = error.errors.map(err => err.message);
