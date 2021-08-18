@@ -49,6 +49,7 @@ router.post('/users', asyncHandler(async (req, res) => {
 //GET route to display course data from database
 router.get("/courses", asyncHandler(async(req, res) => {
   try {
+    let coursesMapped = [];
     const courses = await Course.findAll({
       order: [['createdAt', 'DESC']],
       include: [
@@ -58,21 +59,25 @@ router.get("/courses", asyncHandler(async(req, res) => {
         }
       ]
     });
+  
     //Loops through course data to filter out 'createdAt' and 'updatedAt' when displaying courses
-    if(courses){
-      courses.map(course =>{
-        res.json({ 
-          id: course.id,
-          title: course.title,
-          description: course.description,
-          estimatedTime: course.estimatedTime,
-          materialsNeeded: course.materialsNeeded,
-          userId: course.student
-        }).status(200).end();
-      });
-    } else {
-      throw error;
-    }
+    courses.map(course =>{
+      let courseArr = { 
+        id: course.id,
+        title: course.title,
+        description: course.description,
+        estimatedTime: course.estimatedTime,
+        materialsNeeded: course.materialsNeeded,
+        userId: course.userId,
+        student: course.student
+      };
+      coursesMapped.push(courseArr)
+    });
+
+    res.json(coursesMapped);
+
+    res.status(200).end();
+    
   } catch(error){
     throw error;
   }
