@@ -14,8 +14,11 @@ router.get('/users', authenticateUser, asyncHandler(async (req, res) => {
 
     //json data to display current user's firstname and lastname
     res.json({
+        userId: user.id,
         firstName: user.firstName,
-        lastName: user.lastName
+        lastName: user.lastName,
+        emailAddress: user.emailAddress,
+        password: user.password
     });
 }));
 
@@ -81,7 +84,6 @@ router.get("/courses", asyncHandler(async(req, res) => {
     res.json(coursesMapped);
 
     res.status(200).end();
-    
   } catch(error){
     throw error;
   }
@@ -143,19 +145,23 @@ router.post("/courses", authenticateUser, asyncHandler(async(req, res) => {
 router.put("/courses/:id", authenticateUser, asyncHandler(async(req, res) => {
   const user = req.currentUser;
   try{
-    const course = await Course.findByPk(req.params.id);
-    console.log("Retrieved course from put request");
-    //Checks to see if current user possesses the course
-    if(user.id === course.userId){
-      if(course){
-        await course.update(req.body);
-        res.status(204).end();
+    if(req.body.title.length > 0 && req.body.description.length > 0){
+      const course = await Course.findByPk(req.params.id);
+      console.log("Retrieved course from put request");
+      //Checks to see if current user possesses the course
+      if(user.id === course.userId){
+        if(course){
+          await course.update(req.body);
+          res.status(204).end();
+        } else {
+          res.status(404).json({message: "Course Not Found"});
+        }
       } else {
-        res.status(404).json({message: "Course Not Found"});
+        res.status(403).json({message: "Access Denied"}).end();
       }
     } else {
-      res.status(403).json({message: "Access Denied"}).end();
-    }
+      res.status(400).json({message: "Title and description can not be empty!"}).end();
+    } 
   } catch(error){
     throw error;
   }
