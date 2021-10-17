@@ -45,7 +45,7 @@ router.post('/users', asyncHandler(async (req, res) => {
   } catch (error) {
     if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
       const errors = error.errors.map(err => err.message);
-      res.status(400).json({ errors });   
+      res.status(400).json({message: errors });   
     } else {
       //Generic "error" message for any issues that might come from creating user
       res.status(400).json({message : "Please make sure valid data is provided to create user."})  
@@ -128,8 +128,12 @@ router.post("/courses", authenticateUser, asyncHandler(async(req, res) => {
       //Sets location header to specific course id
       res.location(`/course/${Course.id}`);
       res.status(201).end(console.log("New course successfully created")).end();
-    } else {
-      res.status(400).json({message: "Title and description can not be empty!"}).end();
+    } else if(req.body.title.length === 0 && req.body.description.length === 0){
+      res.status(400).json({errors: "You must enter a value for title and description."})
+    } else if (req.body.title.length === 0) {
+      res.status(400).json({errors: "You must enter a value for title."}).end();
+    } else if (req.body.description.length === 0) {
+      res.status(400).json({errors: "You must enter a value for description."}).end();
     }
   } catch(error){
     if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
@@ -159,11 +163,20 @@ router.put("/courses/:id", authenticateUser, asyncHandler(async(req, res) => {
       } else {
         res.status(403).json({message: "Access Denied"}).end();
       }
-    } else {
-      res.status(400).json({message: "Title and description can not be empty!"}).end();
-    } 
+    } else if(req.body.title.length === 0 && req.body.description.length === 0){
+      res.status(400).json({errors: "You must enter a value for title and description."})
+    } else if (req.body.title.length === 0) {
+      res.status(400).json({errors: "You must enter a value for title."}).end();
+    } else if (req.body.description.length === 0) {
+      res.status(400).json({errors: "You must enter a value for description."}).end();
+    }
   } catch(error){
-    throw error;
+    if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+      const errors = error.errors.map(err => err.message);
+      res.status(400).json({ errors });   
+    } else {
+      throw error;
+    }
   }
 }));
 
@@ -186,5 +199,3 @@ router.delete("/courses/:id", authenticateUser, async(req, res)=>{
 })
 
 module.exports = router;
-
-
